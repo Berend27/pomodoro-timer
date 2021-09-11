@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import classNames from "../utils/class-names";
+import DurationControl from "./DurationControl";
 import useInterval from "../utils/useInterval";
 
 // These functions are defined outside of the component to insure they do not have access to state
@@ -48,14 +49,17 @@ function nextSession(focusDuration, breakDuration) {
 }
 
 function Pomodoro() {
+  const initialDurations = {
+    focusDuration : 25,
+    breakDuration : 5,
+  }
+  // ToDo: Allow the user to adjust the focus and break duration.
+  const [durations, setDurations] = useState(initialDurations);
+
   // Timer starts out paused
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   // The current session - null where there is no session running
   const [session, setSession] = useState(null);
-
-  // ToDo: Allow the user to adjust the focus and break duration.
-  const focusDuration = 25;
-  const breakDuration = 5;
 
   /**
    * Custom hook that invokes the callback function every second
@@ -65,7 +69,7 @@ function Pomodoro() {
   useInterval(() => {
       if (session.timeRemaining === 0) {
         new Audio("https://bigsoundbank.com/UPLOAD/mp3/1482.mp3").play();
-        return setSession(nextSession(focusDuration, breakDuration));
+        return setSession(nextSession(durations.focusDuration, durations.breakDuration));
       }
       return setSession(nextTick);
     },
@@ -85,7 +89,7 @@ function Pomodoro() {
           if (prevStateSession === null) {
             return {
               label: "Focusing",
-              timeRemaining: focusDuration * 60,
+              timeRemaining: durations.focusDuration * 60,
             };
           }
           return prevStateSession;
@@ -99,58 +103,21 @@ function Pomodoro() {
     <div className="pomodoro">
       <div className="row">
         <div className="col">
-          <div className="input-group input-group-lg mb-2">
-            <span className="input-group-text" data-testid="duration-focus">
-              {/* TODO: Update this text to display the current focus session duration */}
-              Focus Duration: 25:00
-            </span>
-            <div className="input-group-append">
-              {/* TODO: Implement decreasing focus duration and disable during a focus or break session */}
-              <button
-                type="button"
-                className="btn btn-secondary"
-                data-testid="decrease-focus"
-              >
-                <span className="oi oi-minus" />
-              </button>
-              {/* TODO: Implement increasing focus duration  and disable during a focus or break session */}
-              <button
-                type="button"
-                className="btn btn-secondary"
-                data-testid="increase-focus"
-              >
-                <span className="oi oi-plus" />
-              </button>
-            </div>
-          </div>
+          <DurationControl 
+            dataTestIdEnding="focus" 
+            durations={durations} 
+            setDurations={setDurations} 
+            isTimerRunning={isTimerRunning} 
+          />
         </div>
         <div className="col">
-          <div className="float-right">
-            <div className="input-group input-group-lg mb-2">
-              <span className="input-group-text" data-testid="duration-break">
-                {/* TODO: Update this text to display the current break session duration */}
-                Break Duration: 05:00
-              </span>
-              <div className="input-group-append">
-                {/* TODO: Implement decreasing break duration and disable during a focus or break session*/}
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  data-testid="decrease-break"
-                >
-                  <span className="oi oi-minus" />
-                </button>
-                {/* TODO: Implement increasing break duration and disable during a focus or break session*/}
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  data-testid="increase-break"
-                >
-                  <span className="oi oi-plus" />
-                </button>
-              </div>
-            </div>
-          </div>
+          <DurationControl 
+            dataTestIdEnding="break" 
+            durations={durations} 
+            setDurations={setDurations} 
+            float="right" 
+            isTimerRunning={isTimerRunning} 
+          />
         </div>
       </div>
       <div className="row">
