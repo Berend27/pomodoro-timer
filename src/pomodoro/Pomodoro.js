@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import DurationControl from "./DurationControl";
 import TimerControls from "./TimerControls";
 import useInterval from "../utils/useInterval";
+import TimeDisplay from "./TimeDisplay";
 
 const initialDurations = {
   focusDuration : 25,
@@ -61,6 +62,8 @@ function Pomodoro() {
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   // The current session - null where there is no session running
   const [session, setSession] = useState(null);
+
+  const visibility = session != null ? "visible" : "hidden";
 
   /**
    * Custom hook that invokes the callback function every second
@@ -132,18 +135,10 @@ function Pomodoro() {
           />
         </div>
       </div>
-      <div>
-        {/* TODO: This area should show only when there is an active focus or break - i.e. the session is running or is paused */}
+      <div style={{ visibility: visibility }}>
         <div className="row mb-2">
           <div className="col">
-            {/* TODO: Update message below to include current session (Focusing or On Break) total duration */}
-            <h2 data-testid="session-title">
-              {session?.label} for 25:00 minutes
-            </h2>
-            {/* TODO: Update message below correctly format the time remaining in the current session */}
-            <p className="lead" data-testid="session-sub-title">
-              {session?.timeRemaining} remaining
-            </p>
+            <TimeDisplay session={session} />
           </div>
         </div>
         <div className="row mb-2">
