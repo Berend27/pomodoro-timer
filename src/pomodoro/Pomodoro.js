@@ -1,7 +1,12 @@
 import React, { useState } from "react";
-import classNames from "../utils/class-names";
 import DurationControl from "./DurationControl";
+import TimerControls from "./TimerControls";
 import useInterval from "../utils/useInterval";
+
+const initialDurations = {
+  focusDuration : 25,
+  breakDuration : 5,
+}
 
 // These functions are defined outside of the component to insure they do not have access to state
 // and are, therefore more likely to be pure.
@@ -49,10 +54,6 @@ function nextSession(focusDuration, breakDuration) {
 }
 
 function Pomodoro() {
-  const initialDurations = {
-    focusDuration : 25,
-    breakDuration : 5,
-  }
   // ToDo: Allow the user to adjust the focus and break duration.
   const [durations, setDurations] = useState(initialDurations);
 
@@ -122,37 +123,13 @@ function Pomodoro() {
       </div>
       <div className="row">
         <div className="col">
-          <div
-            className="btn-group btn-group-lg mb-2"
-            role="group"
-            aria-label="Timer controls"
-          >
-            <button
-              type="button"
-              className="btn btn-primary"
-              data-testid="play-pause"
-              title="Start or pause timer"
-              onClick={playPause}
-            >
-              <span
-                className={classNames({
-                  oi: true,
-                  "oi-media-play": !isTimerRunning,
-                  "oi-media-pause": isTimerRunning,
-                })}
-              />
-            </button>
-            {/* TODO: Implement stopping the current focus or break session. and disable the stop button when there is no active session */}
-            {/* TODO: Disable the stop button when there is no active session */}
-            <button
-              type="button"
-              className="btn btn-secondary"
-              data-testid="stop"
-              title="Stop the session"
-            >
-              <span className="oi oi-media-stop" />
-            </button>
-          </div>
+          <TimerControls 
+            setDurations={setDurations}
+            isTimerRunning={isTimerRunning} 
+            setIsTimerRunning={setIsTimerRunning} 
+            playPause={playPause} 
+            setSession={setSession} 
+          />
         </div>
       </div>
       <div>
@@ -188,4 +165,5 @@ function Pomodoro() {
   );
 }
 
+export { initialDurations };
 export default Pomodoro;
