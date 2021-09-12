@@ -1,26 +1,22 @@
 import React from "react";
+import { minutesToDuration } from "../utils/duration";
+import { secondsToDuration } from "../utils/duration";
 
-function TimeDisplay({ session }) {
+function TimeDisplay({ durations, session }) {
+    const mode = session?.label === "Focusing" ? "focus" : "break";
+    const duration = durations[`${mode}Duration`];
+    const durationString = minutesToDuration(duration);
 
     return (
         <>
             <h2 data-testid="session-title">
-                {session?.label} for 25:00 minutes
+                {session?.label} for {durationString} minutes
             </h2>
             <p className="lead" data-testid="session-sub-title">
-                {secondsToMinutesAndSeconds(session?.timeRemaining)} remaining
+                {secondsToDuration(session?.timeRemaining)} remaining
             </p>
         </>
     )
 }
 
-function secondsToMinutesAndSeconds(totalSeconds) {
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-    const minutesString = minutes < 10 ? "0" + minutes : minutes.toString();
-    const secondsString = seconds < 10 ? `0${seconds}` : seconds.toString();
-    return `${minutesString}:${secondsString}`;
-}
-
-export { secondsToMinutesAndSeconds };
 export default TimeDisplay;

@@ -1,8 +1,9 @@
+import DurationControl from "./DurationControls";
 import React, { useState } from "react";
-import DurationControl from "./DurationControl";
 import TimerControls from "./TimerControls";
-import useInterval from "../utils/useInterval";
 import TimeDisplay from "./TimeDisplay";
+import useInterval from "../utils/useInterval";
+import BarraDeProgreso from "./BarraDeProgreso";
 
 const initialDurations = {
   focusDuration : 25,
@@ -55,15 +56,34 @@ function nextSession(focusDuration, breakDuration) {
 }
 
 function Pomodoro() {
-  // ToDo: Allow the user to adjust the focus and break duration.
-  const [durations, setDurations] = useState(initialDurations);
 
+  const [aria, setAria] = useState(0);
+  const [durations, setDurations] = useState(initialDurations);
   // Timer starts out paused
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   // The current session - null where there is no session running
   const [session, setSession] = useState(null);
 
-  const visibility = session != null ? "visible" : "hidden";
+  const renderProgressDisplay = () => {
+    if (session) {
+      return (
+        <div> 
+          <div className="row mb-2">
+            <div className="col">
+              <TimeDisplay durations = {durations} session={session} />
+            </div>
+          </div>
+          <div className="row mb-2">
+            <div className="col">
+              <BarraDeProgreso aria={aria}/>
+            </div>
+          </div>
+        </div>
+      );
+    } else {
+      return null;
+    }
+  }
 
   /**
    * Custom hook that invokes the callback function every second
@@ -75,6 +95,12 @@ function Pomodoro() {
         new Audio("https://bigsoundbank.com/UPLOAD/mp3/1482.mp3").play();
         return setSession(nextSession(durations.focusDuration, durations.breakDuration));
       }
+      setAria(() => {
+        if (session == null) return 0;
+        const totalTime = session?.label === "Focusing" ? 60 * durations.focusDuration : 60 * durations.breakDuration;
+        const timePercentage = 100 * ((totalTime - session.timeRemaining) / totalTime);
+        return timePercentage;
+      });
       return setSession(nextTick);
     },
     isTimerRunning ? 1000 : null
@@ -102,6 +128,7 @@ function Pomodoro() {
       return nextState;
     });
   }
+  
 
   return (
     <div className="pomodoro">
@@ -111,7 +138,7 @@ function Pomodoro() {
             dataTestIdEnding="focus" 
             durations={durations} 
             setDurations={setDurations} 
-            isTimerRunning={isTimerRunning} 
+            session={session}
           />
         </div>
         <div className="col">
@@ -120,7 +147,7 @@ function Pomodoro() {
             durations={durations} 
             setDurations={setDurations} 
             float="right" 
-            isTimerRunning={isTimerRunning} 
+            session={session} 
           />
         </div>
       </div>
@@ -135,27 +162,7 @@ function Pomodoro() {
           />
         </div>
       </div>
-      <div style={{ visibility: visibility }}>
-        <div className="row mb-2">
-          <div className="col">
-            <TimeDisplay session={session} />
-          </div>
-        </div>
-        <div className="row mb-2">
-          <div className="col">
-            <div className="progress" style={{ height: "20px" }}>
-              <div
-                className="progress-bar"
-                role="progressbar"
-                aria-valuemin="0"
-                aria-valuemax="100"
-                aria-valuenow="0" // TODO: Increase aria-valuenow as elapsed time increases
-                style={{ width: "0%" }} // TODO: Increase width % as elapsed time increases
-              />
-            </div>
-          </div>
-        </div>
-      </div>
+      {renderProgressDisplay()}
     </div>
   );
 }

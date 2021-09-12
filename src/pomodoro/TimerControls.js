@@ -1,13 +1,19 @@
 import classNames from "../utils/class-names";
-import { initialDurations } from "./Pomodoro";
-import React from "react";
+import React, { useState } from "react";
 
-function TimerControls({ setDurations, isTimerRunning, setIsTimerRunning, playPause, setSession }) {
+function TimerControls({ isTimerRunning, setIsTimerRunning, playPause, setSession }) {
+
+    const [disable, setDisable] = useState(true);
+
+    const handlePlayClick = () => {
+      playPause();
+      setDisable(false);
+    }
 
     const handleStopClick = () => {
+        setDisable(true)
         setIsTimerRunning(false);
         setSession(null);
-        setDurations(initialDurations);
     }
 
     return (
@@ -22,7 +28,7 @@ function TimerControls({ setDurations, isTimerRunning, setIsTimerRunning, playPa
               className="btn btn-primary"
               data-testid="play-pause"
               title="Start or pause timer"
-              onClick={playPause}
+              onClick={handlePlayClick}
             >
               <span
                 className={classNames({
@@ -36,7 +42,7 @@ function TimerControls({ setDurations, isTimerRunning, setIsTimerRunning, playPa
               type="button"
               className="btn btn-secondary"
               data-testid="stop"
-              disabled={isTimerRunning}
+              disabled={disable}
               title="Stop the session"
               onClick={handleStopClick}
             >
